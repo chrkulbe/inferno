@@ -71,13 +71,16 @@ export function createComponentVNode<P>(
   }
 
   if ((flags & VNodeFlags.ComponentUnknown) !== 0) {
+    // preserve flag
+    flags = flags & VNodeFlags.CompatElement;
+
     if ((type as any).prototype && (type as any).prototype.render) {
-      flags = VNodeFlags.ComponentClass;
+      flags |= VNodeFlags.ComponentClass;
     } else if ((type as any).render) {
-      flags = VNodeFlags.ForwardRefComponent;
+      flags |= VNodeFlags.ForwardRefComponent;
       type = (type as ForwardRef).render;
     } else {
-      flags = VNodeFlags.ComponentFunction;
+      flags |= VNodeFlags.ComponentFunction;
     }
   }
 

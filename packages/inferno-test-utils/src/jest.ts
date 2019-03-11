@@ -1,6 +1,6 @@
-import { render, VNode, rerender } from 'inferno';
+import { render, VNode, rerender, options } from 'inferno';
 import { ChildFlags, VNodeFlags } from 'inferno-vnode-flags';
-import { isArray, isNullOrUndef } from 'inferno-shared';
+import { isArray, isNullOrUndef, isFunction } from 'inferno-shared';
 import { getTagNameOfVNode } from './utils';
 
 // Jest Snapshot Utilities
@@ -10,7 +10,13 @@ import { getTagNameOfVNode } from './utils';
 
 const symbolValue = typeof Symbol === 'undefined' ? 'react.test.json' : Symbol.for('react.test.json');
 
-function createSnapshotObject(object: object) {
+function createSnapshotObject(object: {children:any, props: any, type: string | undefined}, vNode: VNode) {
+  const optsSnapshotObject = options.createSnapshotObject;
+
+  if (isFunction(optsSnapshotObject)) {
+    optsSnapshotObject(object, vNode);
+  }
+
   Object.defineProperty(object, '$$typeof', {
     value: symbolValue
   });
@@ -71,7 +77,7 @@ function buildVNodeSnapshot(vNode: VNode) {
       children: childVNode,
       props: snapShotProps,
       type: getTagNameOfVNode(vNode)
-    });
+    }, vNode);
   } else if (flags & VNodeFlags.Text) {
     childVNode = vNode.children + '';
   }

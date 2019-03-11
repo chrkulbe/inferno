@@ -45,6 +45,12 @@ export function createElement<T>(type: string | IComponentConstructor<T> | State
   let newProps;
   let childLen = arguments.length - 2;
 
+  // unpack props, if it was packed by inferno-compat
+  if (props && props[VNodeFlags.CompatElement+'']) {
+    flags |= VNodeFlags.CompatElement;
+    props = (props as any).props;
+  }
+
   if (childLen === 1) {
     children = _children;
   } else if (childLen > 1) {
@@ -55,7 +61,7 @@ export function createElement<T>(type: string | IComponentConstructor<T> | State
     }
   }
   if (isString(type)) {
-    flags = getFlagsForElementVnode(type as string);
+    flags |= getFlagsForElementVnode(type as string);
 
     if (!isNullOrUndef(props)) {
       newProps = {};
@@ -78,7 +84,7 @@ export function createElement<T>(type: string | IComponentConstructor<T> | State
       }
     }
   } else {
-    flags = VNodeFlags.ComponentUnknown;
+    flags |= VNodeFlags.ComponentUnknown;
     if (!isUndefined(children)) {
       if (!props) {
         props = {} as T;
